@@ -15,6 +15,7 @@ interface Props {
 
 export const FieldEditor = ({ query, onChange, onRunQuery, limit, editorContext }: Props) => {
   const { header, skipRows, delimiter, decimalSeparator, ignoreUnknown, schema } = defaults(query, defaultQuery);
+  var customDelimiter = '';
 
   const [numSkipRows, setNumSkipRows] = useState(skipRows?.toString());
 
@@ -22,10 +23,21 @@ export const FieldEditor = ({ query, onChange, onRunQuery, limit, editorContext 
     { label: 'Comma', value: ',' },
     { label: 'Semicolon', value: ';' },
     { label: 'Tab', value: '\t' },
+    { label: 'Custom', value: '' },
   ];
 
+  const onCustomDelimiterChange = (e: FormEvent<HTMLInputElement>) => {
+    customDelimiter = e.currentTarget.value;
+    onChange({ ...query, delimiter: customDelimiter ?? ',' });
+    onRunQuery();
+  };
+
   const onDelimiterChange = (value: SelectableValue<string>) => {
-    onChange({ ...query, delimiter: value.value ?? ',' });
+    if (value.label === 'Custom') {
+      onChange({ ...query, delimiter: customDelimiter ?? ',' });
+    } else {
+      onChange({ ...query, delimiter: value.value ?? ',' });
+    }
     onRunQuery();
   };
 
@@ -70,6 +82,11 @@ export const FieldEditor = ({ query, onChange, onRunQuery, limit, editorContext 
             onChange={onDelimiterChange}
             options={delimOptions}
           />
+        </InlineField>
+        <InlineField label="Custom Delimiter" tooltip="Custom delimiter">
+          <Input
+            width={5}
+            onChange={onCustomDelimiterChange} />
         </InlineField>
         <InlineField
           label="Decimal separator"
